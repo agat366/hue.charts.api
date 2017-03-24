@@ -1,0 +1,202 @@
+# this is an example of the Uber API
+# as a demonstration of an API spec in YAML
+swagger: '2.0'
+info:
+  title: HUE Charts API
+  version: "2.0.0"
+# the domain of the service
+# array of all schemes that your API supports
+schemes:
+  - https
+
+basePath: /api/charts
+produces:
+  - application/json
+# -----------------------------------------
+# ----------------------------< api 
+# -----------------------------------------
+paths:
+  /colors_by_city_year_season/{city}/{year}/{season}:
+    get:
+      description: Color value should be returned in '#/definitions/StandardValue/name' field.
+      parameters:
+        - $ref: '#/parameters/city'
+        - $ref: '#/parameters/year'
+        - $ref: '#/parameters/season'
+        
+        - $ref: '#/parameters/top'
+      responses:
+        200:
+          description: An array of STANDARDIZED OBJECTS. Color HEX value suppose to be returned as '#/definitions/StandardValue/Name' for further use.
+          schema:
+            $ref: "#/definitions/StandardDataResponseWithGroups"
+
+  /colors_by_region_year_season/{region}/{year}/{season}:
+    get:
+      parameters:
+        - $ref: '#/parameters/region'
+        - $ref: '#/parameters/year'
+        - $ref: '#/parameters/season'
+      responses:
+        200:
+          description: An array of STANDARDIZED OBJECTS
+          schema:
+            $ref: "#/definitions/StandardDataResponseWithGroups"
+        
+  /cities_by_color_year_season/{color}/{year}/{season}:
+    get:
+      parameters:
+        - $ref: '#/parameters/color'
+        - $ref: '#/parameters/year'
+        - $ref: '#/parameters/season'
+      responses:
+        200:
+          description: An array of STANDARDIZED OBJECTS
+          schema:
+            $ref: "#/definitions/StandardDataResponse"
+            
+  
+        
+# -----------------------------------------
+# ----------------------------< parameters 
+# -----------------------------------------
+
+parameters:
+  city:
+    name: city
+    in: path
+    type: string
+    required: true
+    enum: ['all', 'paris']
+    description: Predefined set of city codes.
+    
+  region:
+    name: region
+    in: path
+    type: string
+    required: true
+    enum: ['all', 'namerica', 'samerica', 'europe', 'asia']
+    description: Predefined set of four available regions.
+    
+  year:
+    name: year
+    in: path
+    type: integer
+    required: true
+    
+  color:
+    name: color
+    in: path
+    type: string
+    required: true
+    description: HEX color code without hash.
+    default: 'all'
+    enum: ['all', 'to-add-all-possible-values']
+     
+  season:
+    name: season
+    in: path
+    type: string
+    required: true
+    description: Predefined set of season codes.
+    default: 'all'
+    enum: ['all', 'to-add-all-possible-values']
+
+# query params ----------
+
+  top: 
+    name: top
+    in: query
+    type: integer
+    required: false
+    description: 'If provided, defines maximum amount of colors to be returned ordered by value'
+
+
+# -----------------------------------------
+# ----------------------------< definitions 
+# -----------------------------------------
+definitions:
+  # Definition for any response
+  StandardResponse:
+    type: object
+    properties:
+      result:
+        type: object
+        description: Container for main data returned.
+      lib:
+        type: object
+        description: A library with any additional data available. Can be empty if no special date returned.
+        properties:
+          title:
+            type: string
+      status:
+        type: string
+        description: Is mostly "success" for 200 status response. Might contain "warning" sometimes.
+        enum: ["success", "warning", "error"]
+      message:
+        type: string
+        description: A message of error in case of "error" status. Or additional info for 200.
+      code:
+        type: integer
+        description: Code error in case of "error" response.
+    required:
+      - status
+      - result
+
+# Standardized data request
+  StandardDataResponse:
+    allOf:
+      - $ref: '#/definitions/StandardResponse'
+      - properties:
+          result:
+            type: array
+            items: 
+              $ref: '#/definitions/StandardValue'
+
+# Standardized data request with Groups
+  StandardDataResponseWithGroups:
+    description: Groups collection expected.
+    allOf:
+      - $ref: '#/definitions/StandardDataResponse'
+      - properties:
+          lib:
+            properties: 
+              groups:
+                type: array
+                items:
+                  $ref: '#/definitions/Group'
+
+# Standardized value for a chart point/item
+  StandardValue:
+    type: object
+    properties:
+      value:
+        type: string
+        description: A numeric value if exists.
+      name:
+        type: string
+        description: Optional field for specific data. For instance if the returning item is a part of some library (like cities). (The city returned would provide its name value for further using).
+      title:
+        type: string
+        description: Main value for representing titling of a data node.
+      percentage:
+        type: number
+        format: float
+        description: Main value for representing of numeric percentage (not value!)
+      group:
+        type: string
+        description: Optional field for specifying if the value belongs to any of groups defined in #definitions/StandardResponse/lib
+    required:
+      - title
+      
+# Group
+  Group:
+    type: object
+    properties:
+      name:
+        type: string
+      title:
+        type: string
+  
+
+
