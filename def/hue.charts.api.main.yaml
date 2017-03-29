@@ -1,65 +1,255 @@
-# this is an example of the Uber API
-# as a demonstration of an API spec in YAML
 swagger: '2.0'
 info:
   title: HUE Charts API
-  version: "2.0.0"
-# the domain of the service
-# array of all schemes that your API supports
+  version: 2.0.0
 schemes:
   - https
-
 basePath: /api/charts
 produces:
   - application/json
-# -----------------------------------------
-# ----------------------------< api 
-# -----------------------------------------
 paths:
-  /colors_by_city_year_season/{city}/{year}/{season}:
+  '/colors/{region}/{city}/{designer}/{year}/{season}/{category}':
     get:
-      description: Color value should be returned in '#/definitions/StandardValue/name' field.
+      description: Returns colors list of 256-color groups with number of unique colors per group and the group usage percentage (considering multiple unique colors under a group). Results accumulate amount of unique colors usage per group.
+        
+        >- Parameters 'region', 'city' are mutually exclussive (only one of the values can be passed. In case of passing all of them together, the priority of correspondent to the parameter place in the path. 
+        
+        >- BY DEFAULT - 4 TOP (!) colors returned (unless 'top' parameter mentioned). Results are ordered by value desc (TOP colors first).
+        
+        >- HEX color schema expect to be returned lowercased.
+
       parameters:
+        - $ref: '#/parameters/region'
+        - $ref: '#/parameters/city'
+        - $ref: '#/parameters/designer'
+        - $ref: '#/parameters/year'
+        - $ref: '#/parameters/season'
+        - $ref: '#/parameters/category'
+        
+        - name: top
+          in: query
+          type: integer
+          required: false
+          default: 4
+          minimum: 1
+          maximum: 256
+          description: Optional parameter in case if custom amount of returned colors needed. Otherwise, always 4 TOP (!) colors returned.
+          
+      responses:
+        '200':
+          description: >-
+            An array of STANDARDIZED OBJECTS. Color HEX value suppose to be
+            returned as '#/definitions/StandardValue/Name'.
+          schema:
+            $ref: '#/definitions/StandardDataResponse'
+          examples:
+            result:
+              - value: 123
+                name: '#ffaa55'
+                percentage: 0.5654
+              - value: 1250
+                name: '#666666'
+                percentage: 0.0233
+              - value: 4
+                name: '#1616ae'
+                percentage: 0.0001
+                # etc.
+            
+# -------------------------------------
+  '/colorGroups/{region}/{city}/{designer}/{year}/{season}/{category}':
+    get:
+      description: Returns 14 predefined groups (base colors). Results accumulate amount of unique colors usage per group.
+        
+        >- Parameters 'region', 'city' are mutually exclussive (only one of the values can be passed. In case of passing all of them together, the priority of correspondent to the parameter place in the path.
+        
+        >- All 14 color groups must present independently on whether the colors of those groups exist for such criteria passed.
+        
+        >- Resulting values also include color group title (representing color title, like 'White' or 'Green') and also the group of the color (['achr', 'chr'] - 'Achromatic'/'Chromatic'). No groups list expected to return.
+        
+        >- HEX color schema expect to be returned lowercased.
+
+      parameters:
+        - $ref: '#/parameters/region'
+        - $ref: '#/parameters/city'
+        - $ref: '#/parameters/designer'
+        - $ref: '#/parameters/year'
+        - $ref: '#/parameters/season'
+        - $ref: '#/parameters/category'
+      responses:
+        '200':
+          description: >-
+            An array of STANDARDIZED OBJECTS. Color HEX value suppose to be
+            returned as '#/definitions/StandardValue/Name'.
+          schema:
+            $ref: '#/definitions/StandardDataResponse'
+          examples:
+            result:
+              - value: 123
+                name: '#ffffff'
+                percentage: 0.5654
+                title: White
+                group: 'achr'
+                
+              - value: 1250
+                name: '#ff0055'
+                percentage: 0.0233
+                title: Red
+                group: 'chr'
+                
+              - value: 0
+                name: '#000000'
+                percentage: 0
+                title: Black
+                group: 'achr'
+                # etc.
+            
+# -------------------------------------
+  '/uniqueColors/{region}/{city}/{designer}/{year}/{season}/{category}':
+    get:
+      description: Returns a list of unique colors.
+        
+        >- Parameters 'region', 'city' are mutually exclussive (only one of the values can be passed. In case of passing all of them together, the priority of correspondent to the parameter place in the path.
+        
+        >- Resulting values also include color group (one of 14) the color is referred to.
+        
+        >- HEX color schema expect to be returned lowercased.
+        
+      parameters:
+        - $ref: '#/parameters/region'
+        - $ref: '#/parameters/city'
+        - $ref: '#/parameters/designer'
+        - $ref: '#/parameters/year'
+        - $ref: '#/parameters/season'
+        - $ref: '#/parameters/category'
+      responses:
+        '200':
+          description: >-
+            An array of STANDARDIZED OBJECTS. Color HEX value suppose to be
+            returned as '#/definitions/StandardValue/Name'.
+          schema:
+            $ref: '#/definitions/StandardDataResponse'
+          examples:
+            result:
+              - name: '#337373'
+                group: '#ffee88'
+                
+              - name: '#020202'
+                group: '#000000'
+                
+              - name: '#f3e6f2'
+                group: '#ffffff'
+                # etc.
+
+# -------------------------------------
+  '/cities/{color}/{region}/{year}/{season}':
+    get:
+      description: Returns cities list with number of unique colors per requested 'color' parameter and the group (color group) usage percentage (the percentage of colors grouped by city within requested color group).
+        
+        >- The cities list is ordered by region (asc) by title (asc).
+        
+        >- The cities listed independently on whether are or not the colors in the group found.
+
+        >- HEX color schema expect to be returned lowercased.
+
+        >- 'name' field represents predefined unique code of the city.
+
+      parameters:
+        - name: color
+          type: string
+          in: path
+          required: true
+          description: HEX-based value ('XXXXXX' without hash).
+          
+        - $ref: '#/parameters/region'
+        - $ref: '#/parameters/year'
+        - $ref: '#/parameters/season'
+
+      responses:
+        '200':
+          description: >-
+            An array of STANDARDIZED OBJECTS. Color HEX value suppose to be
+            returned as '#/definitions/StandardValue/Name'.
+          schema:
+            $ref: '#/definitions/StandardDataResponse'
+          examples:
+            result:
+              - value: 123
+                percentage: 0.5654
+                name: 'london'
+                title: 'London'
+                group: 'europe'
+              - value: 0
+                percentage: 0
+                name: 'rio'
+                title: 'Rio de Janeiro'
+                group: 'samerica'
+                # etc.
+            
+# -------------------------------------
+  '/designersWithTopColors/{region}/{city}/{year}/{season}?page&size':
+    get:
+      description: Returns designers list with top four colors (of 256-color schema) used per filtered conditions. The number of unique colors per 256-color schema group is requested for 'value' field of one of four TOP resulting groups.
+        
+        >- The list is ordered by title (designer's last name).
+
+        >- 'name' field is not used. For the designer unique code is used url-encoded lowercased full name ('title' field).
+
+        >- 'title' field represents full name.
+
+      parameters:
+        - $ref: '#/parameters/region'
         - $ref: '#/parameters/city'
         - $ref: '#/parameters/year'
         - $ref: '#/parameters/season'
         
-        - $ref: '#/parameters/top'
-      responses:
-        200:
-          description: An array of STANDARDIZED OBJECTS. Color HEX value suppose to be returned as '#/definitions/StandardValue/Name' for further use.
-          schema:
-            $ref: "#/definitions/StandardDataResponseWithGroups"
+        - name: page
+          in: query
+          type: integer
+          required: false
+          default: 0
+          minimum: 0
+          description: Requested index of the page (when paging used). Paging is always expect to be used for performance efficiency. 
+        - name: pagesize
+          in: query
+          type: integer
+          required: false
+          default: 60
+          minimum: 4
+          maximum: 100
+          description: Aamount of page size (when paging used).
 
-  /colors_by_region_year_season/{region}/{year}/{season}:
-    get:
-      parameters:
-        - $ref: '#/parameters/region'
-        - $ref: '#/parameters/year'
-        - $ref: '#/parameters/season'
       responses:
-        200:
-          description: An array of STANDARDIZED OBJECTS
+        '200':
+          description: >-
+            An array of STANDARDIZED OBJECTS. Color HEX value suppose to be
+            returned as '#/definitions/StandardValue/Name'.
           schema:
-            $ref: "#/definitions/StandardDataResponseWithGroups"
-        
-  /cities_by_color_year_season/{color}/{year}/{season}:
-    get:
-      parameters:
-        - $ref: '#/parameters/color'
-        - $ref: '#/parameters/year'
-        - $ref: '#/parameters/season'
-      responses:
-        200:
-          description: An array of STANDARDIZED OBJECTS
-          schema:
-            $ref: "#/definitions/StandardDataResponse"
+            $ref: '#/definitions/StandardDataResponse'
+          examples:
+            result:
+              - title: 'Ralph Lauren'
+                data:
+                  - value: 120
+                    name: '#fefefe'
+                  - value: 50
+                    name: '#aaaaaa'
+                  - value: 35
+                    name: '#563456'
+                  - value: 3
+                    name: '#000000'
+              - title: 'Slava Zaytsev'
+                data:
+                  - value: 50
+                    name: '#fefefe'
+                  - value: 4
+                    name: '#aaaaaa'
+                  - value: 3
+                    name: '#563456'
+                  - value: 1
+                    name: '#000000'
+                # etc.
             
-  
-        
-# -----------------------------------------
-# ----------------------------< parameters 
-# -----------------------------------------
+
 
 parameters:
   city:
@@ -67,56 +257,70 @@ parameters:
     in: path
     type: string
     required: true
-    enum: ['all', 'paris']
-    description: Predefined set of city codes.
+    default: all
+    enum:
+      - all
+      - paris
+      - rio
+    description: Predefined set of city codes. City codes must be one word lowercased values.
     
   region:
     name: region
     in: path
     type: string
     required: true
-    enum: ['all', 'namerica', 'samerica', 'europe', 'asia']
-    description: Predefined set of four available regions.
+    default: all
+    enum:
+      - all
+      - namerica
+      - samerica
+      - europe
+      - asia
+      # - africa (used in case of data existence)
+      # - australia (used in case of data existence)
+    description: Predefined set of four currently available regions.
     
   year:
     name: year
     in: path
     type: integer
     required: true
+    default: 0 # == 'all'
     
-  color:
-    name: color
-    in: path
-    type: string
-    required: true
-    description: HEX color code without hash.
-    default: 'all'
-    enum: ['all', 'to-add-all-possible-values']
-     
   season:
     name: season
     in: path
     type: string
     required: true
     description: Predefined set of season codes.
-    default: 'all'
-    enum: ['all', 'to-add-all-possible-values']
+    default: all
+    enum:
+      - all
+      - to-add-all-possible-values
 
-# query params ----------
+  designer:
+    name: designer
+    in: path
+    type: string
+    required: true
+    description: Url-encoded lowercased designer full name.
+    default: all
+    enum:
+      - all
+      - to-add-all-possible-values
+      
+  category:
+    name: category
+    in: path
+    type: string
+    required: true
+    description: Url-encoded lowercased category title. Category represents type of cloth (or any other available type of color usage).
+    default: all
+    enum:
+      - all
+      - to-add-all-possible-values
 
-  top: 
-    name: top
-    in: query
-    type: integer
-    required: false
-    description: 'If provided, defines maximum amount of colors to be returned ordered by value'
-
-
-# -----------------------------------------
-# ----------------------------< definitions 
-# -----------------------------------------
 definitions:
-  # Definition for any response
   StandardResponse:
     type: object
     properties:
@@ -125,48 +329,40 @@ definitions:
         description: Container for main data returned.
       lib:
         type: object
-        description: A library with any additional data available. Can be empty if no special date returned.
+        description: >-
+          A library with any additional data available. Can be empty if no
+          special date returned.
         properties:
           title:
             type: string
       status:
         type: string
-        description: Is mostly "success" for 200 status response. Might contain "warning" sometimes.
-        enum: ["success", "warning", "error"]
+        description: >-
+          Is mostly "success" for 200 status response. Might contain "warning"
+          sometimes.
+        enum:
+          - success
+          - warning
+          - error
       message:
         type: string
-        description: A message of error in case of "error" status. Or additional info for 200.
+        description: >-
+          A message of error in case of "error" status. Or additional info for
+          200.
       code:
         type: integer
         description: Code error in case of "error" response.
     required:
       - status
       - result
-
-# Standardized data request
   StandardDataResponse:
     allOf:
       - $ref: '#/definitions/StandardResponse'
       - properties:
           result:
             type: array
-            items: 
+            items:
               $ref: '#/definitions/StandardValue'
-
-# Standardized data request with Groups
-  StandardDataResponseWithGroups:
-    description: Groups collection expected.
-    allOf:
-      - $ref: '#/definitions/StandardDataResponse'
-      - properties:
-          lib:
-            properties: 
-              groups:
-                type: array
-                items:
-                  $ref: '#/definitions/Group'
-
-# Standardized value for a chart point/item
   StandardValue:
     type: object
     properties:
@@ -175,7 +371,10 @@ definitions:
         description: A numeric value if exists.
       name:
         type: string
-        description: Optional field for specific data. For instance if the returning item is a part of some library (like cities). (The city returned would provide its name value for further using).
+        description: >-
+          Optional field for specific data. For instance if the returning item
+          is a part of some library (like cities). (The city returned would
+          provide its name value for further using).
       title:
         type: string
         description: Main value for representing titling of a data node.
@@ -185,18 +384,8 @@ definitions:
         description: Main value for representing of numeric percentage (not value!)
       group:
         type: string
-        description: Optional field for specifying if the value belongs to any of groups defined in #definitions/StandardResponse/lib
+        description: >-
+          Optional field for specifying if the value belongs to any of groups
+          defined in
     required:
       - title
-      
-# Group
-  Group:
-    type: object
-    properties:
-      name:
-        type: string
-      title:
-        type: string
-  
-
-
