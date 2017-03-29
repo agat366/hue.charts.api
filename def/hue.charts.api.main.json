@@ -14,7 +14,7 @@
     "paths": {
         "/colors/{region}/{city}/{designer}/{year}/{season}/{category}": {
             "get": {
-                "description": "Returns colors list of 256-color groups with number of unique colors per group and the group usage percentage (considering multiple unique colors under a group). Results accumulate amount of unique colors usage per group.\n>- Parameters 'region', 'city' are mutually exclussive (only one of the values can be passed. In case of passing all of them together, the priority of correspondent to the parameter place in the path.\n>- BY DEFAULT - 4 TOP (!) colors returned (unless 'top' parameter mentioned). Results are ordered by value desc (TOP colors first).\n>- HEX color schema expect to be returned lowercased.",
+                "description": "Returns colors list of 256-color groups with number of unique colors per group and the group usage percentage (considering multiple unique colors under a group). Results accumulate amount of unique colors usage per group.\n>- Parameters 'region', 'city' are mutually exclussive (only one of the values can be passed). In case of passing all of them together, the priority of correspondent to the parameter place in the path.\n>- BY DEFAULT - 4 TOP (!) colors returned (unless 'top' parameter mentioned). Results are ordered by value desc (TOP colors first).\n>- HEX color schema expect to be returned lowercased.",
                 "parameters": [
                     {
                         "$ref": "#/parameters/region"
@@ -47,7 +47,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "An array of STANDARDIZED OBJECTS. Color HEX value suppose to be returned as '#/definitions/StandardValue/Name'.",
+                        "description": "An array of STANDARDIZED OBJECTS.",
                         "schema": {
                             "$ref": "#/definitions/StandardDataResponse"
                         },
@@ -99,7 +99,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "An array of STANDARDIZED OBJECTS. Color HEX value suppose to be returned as '#/definitions/StandardValue/Name'.",
+                        "description": "An array of STANDARDIZED OBJECTS.",
                         "schema": {
                             "$ref": "#/definitions/StandardDataResponse"
                         },
@@ -157,7 +157,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "An array of STANDARDIZED OBJECTS. Color HEX value suppose to be returned as '#/definitions/StandardValue/Name'.",
+                        "description": "An array of STANDARDIZED OBJECTS.",
                         "schema": {
                             "$ref": "#/definitions/StandardDataResponse"
                         },
@@ -204,7 +204,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "An array of STANDARDIZED OBJECTS. Color HEX value suppose to be returned as '#/definitions/StandardValue/Name'.",
+                        "description": "An array of STANDARDIZED OBJECTS.",
                         "schema": {
                             "$ref": "#/definitions/StandardDataResponse"
                         },
@@ -268,7 +268,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "An array of STANDARDIZED OBJECTS. Color HEX value suppose to be returned as '#/definitions/StandardValue/Name'.",
+                        "description": "An array of STANDARDIZED OBJECTS.",
                         "schema": {
                             "$ref": "#/definitions/StandardDataResponse"
                         },
