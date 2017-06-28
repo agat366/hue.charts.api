@@ -1,0 +1,96 @@
+---
+swagger: "2.0"
+info:
+  version: "2.0.0"
+  title: "HUE Charts API"
+paths:
+  /objects:
+    get:
+      description: "Returns available options for filtering etc."
+      parameters: []
+      responses:
+        200:
+          description: "Response object"
+          schema:
+            type: "object"
+            properties:
+              data:
+                type: "object"
+                properties:
+                  categories:
+                    type: "object"
+                    properties:
+                      colorGroups:
+                        type: "array"
+                        items:
+                          type: "object"
+                          properties:
+                            id:
+                              type: "string"
+                            title:
+                              type: "string"
+                            color:
+                              type: "string"
+                              description: "HEX-schema color"
+                      years:
+                        type: "object"
+                        properties:
+                          from:
+                            type: "integer"
+                          to:
+                            type: "integer"
+                      seasons:
+                        type: "array"
+                        items:
+                          type: "object"
+                          properties:
+                            id:
+                              type: "string"
+                            title:
+                              type: "string"
+                      categories:
+                        type: "array"
+                        items:
+                          type: "object"
+                          properties:
+                            id:
+                              type: "string"
+                            title:
+                              type: "string"
+                      cities:
+                        type: "array"
+                        items:
+                          type: "object"
+                          properties:
+                            id:
+                              type: "string"
+                            title:
+                              type: "string"
+                            region:
+                              type: "string"
+                              description: "Correspondent region id"
+  /designers?search:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "search"
+        description: Case-insensitive search term
+        in: "query"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Status 200"
+          schema:
+            type: "object"
+            properties:
+              data:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "string"
+                    title:
+                      type: "string"
